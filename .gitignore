@@ -1,3 +1,6 @@
+# Dependencies
+node_modules/
+
 # OS files
 .DS_Store
 Thumbs.db
@@ -9,5 +12,15 @@ Thumbs.db
 .idea/
 .vscode/
 
+# npm
+*.log
+npm-debug.log*
+
 # Test outputs
 AI-READINESS-REPORT.md
+
+# Build artifacts
+dist/
+
+# Research materials
+sources/

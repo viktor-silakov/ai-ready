@@ -1,0 +1,21 @@
+{
+  "name": "ai-ready",
+  "description": "Analyze repository AI-readiness. Scores 8 aspects (documentation, architecture, testing, type safety, agent instructions, file structure, context optimization, security) from 1-100 with ASCII progress bars. Provides A-F grade, identifies issues by severity (Critical/Warning/Info), creates phased improvement roadmap, generates templates.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Viktor Silakov",
+    "url": "https://github.com/viktor-silakov"
+  },
+  "repository": "https://github.com/viktor-silakov/ai-ready",
+  "license": "MIT",
+  "keywords": [
+    "ai-ready",
+    "ai-readiness",
+    "documentation",
+    "architecture",
+    "testing",
+    "type-safety",
+    "claude-code",
+    "evaluation"
+  ]
+}

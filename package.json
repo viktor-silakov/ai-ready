@@ -1,0 +1,40 @@
+{
+  "name": "ai-ready-skill",
+  "version": "1.0.0",
+  "description": "AI-Readiness skill for Claude Code - analyze repository readiness for AI-assisted development with 95 criteria across 8 aspects",
+  "keywords": [
+    "claude",
+    "claude-code",
+    "skill",
+    "ai",
+    "ai-ready",
+    "readiness",
+    "documentation",
+    "architecture",
+    "testing",
+    "evaluation"
+  ],
+  "author": "Viktor Silakov",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/viktor-silakov/ai-ready.git"
+  },
+  "homepage": "https://github.com/viktor-silakov/ai-ready#readme",
+  "bugs": {
+    "url": "https://github.com/viktor-silakov/ai-ready/issues"
+  },
+  "type": "module",
+  "bin": {
+    "ai-ready-skill": "./bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "skills",
+    ".claude-plugin",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

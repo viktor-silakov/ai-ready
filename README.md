@@ -1,4 +1,4 @@
-# ai-ready
+# ai-ready-skill
 
 A Claude Code skill for analyzing repository AI-readiness.
 
@@ -36,20 +36,33 @@ Scores 8 key aspects from 1-100 with ASCII progress bars, highlights problems by
 
 ## Installation
 
-### Option 1: Add to Claude Code settings
+### Via npx (recommended)
 
 ```bash
-claude config add skills /path/to/ai-ready-skill
+# Install skill to your project
+npx ai-ready-skill install
+
+# Or just run (install is default)
+npx ai-ready-skill
 ```
 
-### Option 2: Clone and add
+### Via npm global install
 
 ```bash
-git clone https://github.com/yourusername/ai-ready-skill.git
-claude config add skills ./ai-ready-skill
+npm install -g ai-ready-skill
+ai-ready-skill install
+```
+
+### Manual
+
+```bash
+git clone https://github.com/viktor-silakov/ai-ready.git
+cp -r ai-ready/ai-ready-skill/skills/ai-ready .claude/skills/
 ```
 
 ## Usage
+
+After installation, use in Claude Code:
 
 ```bash
 # Analyze current directory
@@ -57,6 +70,16 @@ claude config add skills ./ai-ready-skill
 
 # Analyze specific repository
 /ai-ready /path/to/repo
+```
+
+## CLI Commands
+
+```bash
+npx ai-ready-skill install   # Install skill (default)
+npx ai-ready-skill check     # Check if installed
+npx ai-ready-skill update    # Update to latest version
+npx ai-ready-skill remove    # Remove skill
+npx ai-ready-skill help      # Show help
 ```
 
 ## Workflow
@@ -130,65 +153,17 @@ your-repo/
 └── AI-READINESS-REPORT.md    # Full report with history tracking
 ```
 
-## Example Output
-
-### Problem List
-
-```
-🔴 CRITICAL (2 issues)
-──────────────────────────────────────────────────────────────────────
-[C1] Agent Instructions: CLAUDE.md is missing
-     Impact: AI agents have no project-specific guidance
-
-[C2] File Structure: src/utils/helpers.ts has 1,247 lines
-     Impact: Too large for AI context window
-
-🟡 WARNING (3 issues)
-──────────────────────────────────────────────────────────────────────
-[W1] Documentation: ARCHITECTURE.md is missing
-     Impact: AI lacks system design context
-...
-```
-
-### Phased Roadmap
-
-```markdown
-## Phase 1: Quick Wins
-- Create CLAUDE.md from template
-- Create llms.txt
-- Add .aiignore
-
-## Phase 2: Foundation
-- Split large files (>500 LOC)
-- Create ARCHITECTURE.md
-- Improve test coverage
-
-## Phase 3: Advanced
-- Increase coverage to >80%
-- Implement ADR practice
-- Regular security audits
-```
-
 ## Requirements
 
-- [Claude Code](https://claude.ai/claude-code) CLI installed
-- Any repository to analyze
+- [Claude Code](https://claude.ai/claude-code) CLI
+- Node.js >= 18.0.0
 
 ## License
 
 MIT License - see [LICENSE](LICENSE)
 
-## Contributing
+## Links
 
-Contributions welcome! Please read the skill file and submit PRs for:
-
-- Additional language-specific checks
-- New sub-criteria
-- Template improvements
-- Bug fixes
-
-## Related
-
+- [GitHub Repository](https://github.com/viktor-silakov/ai-ready)
+- [Report Issues](https://github.com/viktor-silakov/ai-ready/issues)
 - [Claude Code Documentation](https://docs.anthropic.com/claude-code)
-- [CLAUDE.md Best Practices](https://docs.anthropic.com/claude-code/claude-md)
-- [llms.txt Specification](https://llmstxt.org/)

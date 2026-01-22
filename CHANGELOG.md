@@ -9,16 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Initial release of ai-ready skill
+- Initial release of ai-ready-skill
+- CLI tool for installing/updating/removing skill
 - 8 aspect analysis system:
-  - Documentation (15 sub-criteria)
-  - Architecture (12 sub-criteria)
-  - Testing (12 sub-criteria)
-  - Type Safety (10 sub-criteria)
-  - Agent Instructions (15 sub-criteria)
-  - File Structure (10 sub-criteria)
-  - Context Optimization (11 sub-criteria)
-  - Security (10 sub-criteria)
+  - Documentation (15 sub-criteria, 15% weight)
+  - Architecture (12 sub-criteria, 15% weight)
+  - Testing (12 sub-criteria, 12% weight)
+  - Type Safety (10 sub-criteria, 12% weight)
+  - Agent Instructions (15 sub-criteria, 15% weight)
+  - File Structure (10 sub-criteria, 10% weight)
+  - Context Optimization (11 sub-criteria, 11% weight)
+  - Security (10 sub-criteria, 10% weight)
 - ASCII dashboard with progress bars
 - Overall A-F grading system
 - Severity classification (Critical/Warning/Info)
