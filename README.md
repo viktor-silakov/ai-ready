@@ -36,28 +36,25 @@ Scores 8 key aspects from 1-100 with ASCII progress bars, highlights problems by
 
 ## Installation
 
-### Via npx (recommended)
+### Via skills.sh (recommended)
 
 ```bash
-# Install skill to your project
-npx ai-ready-skill install
+npx skills add viktor-silakov/ai-ready
+```
 
-# Or just run (install is default)
+> [skills.sh](https://skills.sh) — universal skills manager for AI agents
+
+### Via npx
+
+```bash
 npx ai-ready-skill
 ```
 
-### Via npm global install
+### Via npm
 
 ```bash
 npm install -g ai-ready-skill
 ai-ready-skill install
-```
-
-### Manual
-
-```bash
-git clone https://github.com/viktor-silakov/ai-ready.git
-cp -r ai-ready/ai-ready-skill/skills/ai-ready .claude/skills/
 ```
 
 ## Usage
