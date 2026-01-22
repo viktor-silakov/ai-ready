@@ -36,7 +36,7 @@ Target: {argument provided OR current working directory}
 1. **Primary Language:** Check file extensions, package files (package.json, Cargo.toml, go.mod, pyproject.toml, etc.)
 2. **Framework:** Detect from dependencies and file structure
 3. **Existing Report:** Check for `AI-READINESS-REPORT.md` (for delta tracking)
-4. **Agent Files:** Check for CLAUDE.md, .cursorrules, .github/copilot-instructions.md
+4. **Agent Files:** Check for CLAUDE.md, AGENTS.md, .cursorrules, .github/copilot-instructions.md
 5. **Documentation Files:** README.md, ARCHITECTURE.md, CONTRIBUTING.md, docs/
 
 Use Glob and Read tools to gather this information efficiently.
@@ -66,9 +66,11 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 | 1.13 | Environment setup docs | Missing | Basic | Complete with troubleshooting |
 | 1.14 | Deployment documentation | Missing | Basic | Full runbook |
 | 1.15 | Inline code comments (why, not what) | None/excessive | Some | Appropriate why-comments |
+| 1.16 | Executable Specifications (specs/ folder) | Missing | Some .feature files | Comprehensive specs |
 
 **How to check:**
 - Use Glob to find documentation files: `**/*.md`, `**/docs/**`
+- Check for `specs/` directory or `**/*.feature` files (Gherkin)
 - Read README.md, ARCHITECTURE.md, CONTRIBUTING.md
 - Sample source files for docstrings/JSDoc coverage
 - Check for `docs/adr/` or `adr/` directory
@@ -89,10 +91,16 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 | 2.10 | Interface segregation | Fat interfaces | Some | Focused interfaces |
 | 2.11 | Dependency injection | Hard deps | Partial | Full DI |
 | 2.12 | Consistent patterns | Ad-hoc | Mostly consistent | Uniform patterns |
+| 2.13 | Automated architecture enforcement | None | Linter rules | Full validation (dep-cruiser) |
+| 2.14 | Module size (30-50 files optimal) | >100 files/module | 50-100 files | 30-50 files per module |
+| 2.15 | Event-driven decoupling | Direct calls only | Some events | Typed event bus between modules |
 
 **How to check:**
 - Analyze import/require statements for circular dependencies
 - Check directory structure for separation of concerns
+- Count files per logical module (30-50 fits in AI context window)
+- Look for event bus / pub-sub patterns for inter-module communication
+- Look for architecture linters in package.json (dependency-cruiser, eslint-plugin-boundaries)
 - Look for god files (>1000 LOC with many responsibilities)
 - Review configuration handling
 
@@ -135,17 +143,17 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 | 4.10 | Type assertions | Excessive | Minimal | Rare/justified |
 
 **Language-specific adaptations:**
-- **TypeScript:** Check tsconfig.json for strict mode, search for `any`
-- **Python:** Check for type hints, mypy/pyright config
+- **TypeScript:** Check tsconfig.json for strict mode, search for `any`. Branded types (`type UserId = string & { __brand: 'UserId' }`) provide 3x faster LLM convergence
+- **Python:** Check for type hints, mypy/pyright config, NewType for branded types
 - **Go:** Inherently typed, check for interface{}/any usage
-- **Rust:** Inherently typed, check for unsafe blocks
+- **Rust:** Inherently typed, check for unsafe blocks, newtype pattern
 - **Ruby/JS:** Check for Sorbet/Flow, reduce weight if dynamically typed
 
 ### Aspect 5: Agent Instructions (Weight: 15%)
 
 | # | Criterion | 0 Points | 5 Points | 10 Points |
 |---|-----------|----------|----------|-----------|
-| 5.1 | CLAUDE.md exists | Missing | Basic | Comprehensive |
+| 5.1 | Agent Instruction File (CLAUDE.md / AGENTS.md) | Missing | Basic | Comprehensive |
 | 5.2 | Project overview section | Missing | Brief | Clear context |
 | 5.3 | Tech stack documented | Missing | Listed | Explained with versions |
 | 5.4 | Code conventions section | Missing | Basic | Detailed with examples |
@@ -160,10 +168,14 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 | 5.13 | Security considerations | Missing | Basic | Comprehensive |
 | 5.14 | Dependencies explained | Missing | Listed | Explained why each |
 | 5.15 | Quick reference section | Missing | Basic | Complete cheatsheet |
+| 5.16 | Instruction count optimized | >300 rules | 200-300 rules | ~150-200 rules (optimal) |
+| 5.17 | ASK FIRST rules defined | Missing | Few | Clear boundaries for human approval |
 
 **How to check:**
-- Check for CLAUDE.md at root
+- Check for CLAUDE.md or AGENTS.md at root
 - Check for .cursorrules, .github/copilot-instructions.md as alternatives
+- Count total instruction lines (~150-200 optimal; >300 causes degraded following)
+- Look for ASK FIRST / human approval boundaries (deploy, delete, API changes)
 - Read and evaluate each section's quality
 - Look for actionable, specific instructions vs vague guidelines
 
@@ -180,13 +192,16 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 | 6.7 | Colocation (related files together) | Scattered | Partial | Well colocated |
 | 6.8 | Config file organization | Scattered | Root only | Organized config/ |
 | 6.9 | Asset organization | Mixed with code | Partial | Dedicated assets/ |
-| 6.10 | Monorepo structure (if applicable) | Unclear boundaries | Basic | Clear workspaces |
+| 6.10 | Monorepo structure (if applicable) | Unclear boundaries | Basic workspaces | Full tooling (Nx/Turborepo) + graph |
+| 6.11 | Nested instruction files (monorepo) | Root only | Some packages | AGENTS.md per package (router pattern) |
 
 **How to check:**
 - Count lines in source files (sample 20+ files)
 - Measure directory depth
 - Count files per directory
 - Analyze naming patterns
+- For monorepos: check for Nx, Turborepo, Bazel; `nx graph` availability
+- Check for nested AGENTS.md/CLAUDE.md in packages/ or apps/
 
 ### Aspect 7: Context Optimization (Weight: 11%)
 
@@ -203,9 +218,13 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 | 7.9 | Import organization | Random | Grouped | Sorted/grouped |
 | 7.10 | Single export per file (when sensible) | Multiple mixed | Mixed | Clean exports |
 | 7.11 | Context-efficient error messages | Generic | Basic | Descriptive with context |
+| 7.12 | Hierarchical context (nested instructions) | Root only | Some nested | Full router pattern |
+| 7.13 | Versioned prompts directory (prompts/) | Missing | Some prompts | Organized prompts/ with templates |
 
 **How to check:**
 - Check for llms.txt, llms-full.txt at root
+- Check for nested AGENTS.md/CLAUDE.md in subdirectories
+- Check for prompts/ directory with versioned system prompts
 - Sample function lengths
 - Review naming conventions
 - Check for formatting tools (.prettierrc, .editorconfig)
@@ -224,12 +243,14 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 | 8.8 | Output encoding | None | Partial | Proper encoding |
 | 8.9 | Dependency security | Outdated/vulnerable | Some updates | Regular updates |
 | 8.10 | Security documentation | None | Basic | Threat model |
+| 8.11 | AI commit attribution | None | Manual tagging | Automated Co-authored-by metadata |
 
 **How to check:**
 - Check for .aiignore, .gitignore
 - Grep for common secret patterns: `API_KEY=`, `password=`, `secret=`, AWS keys
 - Check for .env.example vs .env in repo
 - Look for security-focused NEVER rules in CLAUDE.md
+- Check git log for `Co-authored-by: AI` or similar attribution patterns
 
 ---
 
@@ -241,8 +262,10 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 Aspect Score = (Sum of criterion scores / Max possible) * 100
 ```
 
-Example for Documentation (15 criteria):
-- If scores sum to 105 out of 150 possible: (105/150) * 100 = 70/100
+Example for Documentation (16 criteria), Architecture (15 criteria), Agent Instructions (17 criteria), etc.:
+- Documentation: If scores sum to 112 out of 160: (112/160) * 100 = 70/100
+- Architecture (15 criteria): max 150 points
+- Agent Instructions (17 criteria): max 170 points
 
 ### Overall Score Calculation (Weighted)
 
@@ -316,7 +339,7 @@ Group problems by severity, then by aspect. List all identified issues.
 ### Severity Classification
 
 **CRITICAL (Must fix - blocks AI effectiveness):**
-- Missing CLAUDE.md entirely
+- Missing Agent Instructions (CLAUDE.md/AGENTS.md)
 - Missing README.md
 - Files over 1000 LOC
 - Hardcoded secrets found
@@ -325,7 +348,7 @@ Group problems by severity, then by aspect. List all identified issues.
 - No tests at all
 
 **WARNING (Should fix - impacts AI efficiency):**
-- Incomplete CLAUDE.md sections
+- Incomplete Agent Instructions sections
 - Files 500-1000 LOC
 - Missing ARCHITECTURE.md
 - Test coverage <50%
@@ -340,6 +363,14 @@ Group problems by severity, then by aspect. List all identified issues.
 - No llms-full.txt
 - Missing CONTRIBUTING.md
 - Could add more why-comments
+- Missing executable specs (specs/)
+- No architecture enforcement
+- No hierarchical context (router pattern)
+- Missing prompts/ directory
+- No event-driven decoupling
+- No AI commit attribution
+- Missing ASK FIRST boundaries
+- >200 instructions in CLAUDE.md (consider trimming)
 
 ### Output Format
 
@@ -350,7 +381,7 @@ Group problems by severity, then by aspect. List all identified issues.
 
 🔴 CRITICAL ({count} issues)
 ──────────────────────────────────────────────────────────────────────
-[C1] Agent Instructions: CLAUDE.md is missing
+[C1] Agent Instructions: CLAUDE.md/AGENTS.md is missing
      Impact: AI agents have no project-specific guidance
 
 [C2] File Structure: src/utils/helpers.ts has 1,247 lines
@@ -385,6 +416,27 @@ Group problems by severity, then by aspect. List all identified issues.
 
 Present issues for user selection. Use AskUserQuestion tool with smart defaults.
 
+### Pre-Survey: Effort Level
+
+First, ask the user about their available effort level to filter recommendations:
+
+```
+Before we review the issues, what's your current capacity for improvements?
+
+1. 🚀 Quick Wins Only - Minimal effort, immediate impact (files to create/copy)
+2. 🔧 Quick Wins + Medium - Include structural changes (file splitting, reorganization)
+3. 🏗️ Full Refactoring - All improvements including deep architectural changes
+```
+
+**Effort Level Mapping:**
+| Level | Phase 1 (Quick Wins) | Phase 2 (Foundation) | Phase 3 (Advanced) |
+|-------|---------------------|---------------------|-------------------|
+| Quick Wins Only | ✅ Show | ❌ Hide | ❌ Hide |
+| Quick + Medium | ✅ Show | ✅ Show | ❌ Hide |
+| Full Refactoring | ✅ Show | ✅ Show | ✅ Show |
+
+Based on the selected effort level, filter which issues to present in the subsequent survey.
+
 ### Survey Flow (By Severity)
 
 **Critical Issues (Default: Y):**
@@ -416,14 +468,23 @@ Info issues are optimization opportunities.
 
 ### Implementation
 
-Use AskUserQuestion with multiSelect for each severity level:
+Use AskUserQuestion tool for the survey:
 
 ```
 Questions:
+0. "What's your current capacity for improvements?" 
+   Options: ["🚀 Quick Wins Only", "🔧 Quick Wins + Medium", "🏗️ Full Refactoring"]
+
+Then, based on effort level, present filtered issues:
 1. "Which CRITICAL issues should we address?" (default all selected)
-2. "Which WARNING issues should we address?" (default none selected)
-3. "Which INFO issues should we address?" (default none selected)
+2. "Which WARNING issues should we address?" (default none selected) - hide if Quick Wins Only
+3. "Which INFO issues should we address?" (default none selected) - hide if Quick Wins Only
 ```
+
+**Issue-to-Phase Mapping:**
+- **Phase 1 (Quick Wins):** Create files (CLAUDE.md, llms.txt, .aiignore), add .gitignore entries, remove hardcoded secrets
+- **Phase 2 (Foundation):** Split files, create ARCHITECTURE.md, reorganize directories, improve types
+- **Phase 3 (Advanced):** Increase coverage, add ADRs, implement event bus, add branded types
 
 ---
 
@@ -605,6 +666,15 @@ For selected missing files, generate from these templates:
 - Skip error handling
 - Create files over 500 lines
 - Use magic numbers without constants
+
+## ASK FIRST (requires human approval)
+
+- Deploying to production
+- Deleting data or files
+- Changing public API contracts
+- Modifying authentication/authorization
+- Adding new dependencies
+- Database migrations
 
 ## Error Handling
 
