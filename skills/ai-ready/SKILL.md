@@ -25,7 +25,7 @@ AI-Readiness Analysis Progress:
 - [ ] Step 8: Enter plan mode
 - [ ] Step 9: Create phased roadmap
 - [ ] Step 10: Generate templates
-- [ ] Step 11: Save reports to .aiready/
+- [ ] Step 11: Save reports to .aiready/ (confirm HTML generation)
 - [ ] Step 12: Ask to open HTML report
 ```
 
@@ -200,6 +200,14 @@ For selected issues, generate from templates:
 
 ## Step 11: Save Reports
 
+Before writing the HTML file, always ask the user:
+```
+AskUserQuestion:
+  Question: "Generate HTML report now?"
+  Options: ["Yes, generate HTML", "No, skip HTML"]
+```
+If "Yes", create the HTML report. If "No", skip HTML but still write Markdown/JSON.
+
 Save to `.aiready/history/reports/` with timestamp:
 
 ```
@@ -221,7 +229,7 @@ Update `index.json` with new report entry and trend analysis.
 
 ### Open Report
 
-After saving HTML report, ask user:
+If the HTML report was generated and saved, immediately ask:
 
 ```
 AskUserQuestion:
@@ -229,7 +237,7 @@ AskUserQuestion:
   Options: ["Yes, open report", "No, skip"]
 ```
 
-If yes, run:
+If HTML was skipped, do not prompt to open. If yes, run:
 ```bash
 open .aiready/history/reports/{timestamp}.html
 ```
