@@ -1,7 +1,7 @@
 {
   "name": "ai-ready-skill",
   "version": "1.0.1",
-  "description": "AI-Readiness skill for Claude Code - analyze repository readiness for AI-assisted development with 95 criteria across 8 aspects",
+  "description": "AI-Readiness skill for Claude Code - analyze repository readiness for AI-assisted development with 140 criteria across 8 aspects",
   "keywords": [
     "claude",
     "claude-code",

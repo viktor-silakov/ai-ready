@@ -1,6 +1,6 @@
 ---
 name: ai-ready
-description: Analyze any repository for AI agent development efficiency. Scores 8 key aspects (documentation, architecture, testing, type safety, agent instructions, file structure, context optimization, security) from 1-100 with ASCII progress bars. Highlights problems by severity (Critical/Warning/Info), provides overall A-F grade, surveys user on issues to fix, then enters plan mode to create a phased refactoring roadmap. Use when evaluating repository readiness for AI-assisted development or preparing a codebase for Claude Code.
+description: Analyze any repository for AI agent development efficiency. Scores 8 key aspects (documentation, architecture, testing, type safety, agent instructions, file structure, context optimization, security) from 1-100 with ASCII progress bars. Evaluates 140 sub-criteria including E2E anti-flake practices, multi-agent configs (Cursor/Windsurf/Cline/Aider), MCP integration, Atomic Design patterns, Screenplay testing, and kebab-case conventions. Highlights problems by severity (Critical/Warning/Info), provides overall A-F grade, surveys user on issues to fix, then enters plan mode to create a phased refactoring roadmap. Use when evaluating repository readiness for AI-assisted development or preparing a codebase for Claude Code.
 user-invocable: true
 argument-hint: [path-to-repo]
 ---
@@ -67,10 +67,15 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 | 1.14 | Deployment documentation | Missing | Basic | Full runbook |
 | 1.15 | Inline code comments (why, not what) | None/excessive | Some | Appropriate why-comments |
 | 1.16 | Executable Specifications (specs/ folder) | Missing | Some .feature files | Comprehensive specs |
+| 1.17 | Storybook / Component Atlas (CSF3) | Missing | Basic setup | Comprehensive CSF3 stories for UI |
+| 1.18 | Standardized NPM Scripts (build, test, lint) | Missing/Non-standard | Some present | All standard scripts present |
+| 1.19 | Repository Map / Architecture Map | Missing | Basic tree | Comprehensive map in README/docs |
 
 **How to check:**
 - Use Glob to find documentation files: `**/*.md`, `**/docs/**`
+- Check `package.json` for `scripts` section
 - Check for `specs/` directory or `**/*.feature` files (Gherkin)
+- Check for `.storybook` directory and `**/*.stories.*` files
 - Read README.md, ARCHITECTURE.md, CONTRIBUTING.md
 - Sample source files for docstrings/JSDoc coverage
 - Check for `docs/adr/` or `adr/` directory
@@ -94,10 +99,16 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 | 2.13 | Automated architecture enforcement | None | Linter rules | Full validation (dep-cruiser) |
 | 2.14 | Module size (30-50 files optimal) | >100 files/module | 50-100 files | 30-50 files per module |
 | 2.15 | Event-driven decoupling | Direct calls only | Some events | Typed event bus between modules |
+| 2.16 | Feature-Sliced Design (FSD) structure | No clear structure | Partial (features/ dir) | Full FSD (app, pages, widgets, features, entities, shared) |
+| 2.17 | Explicit State Machines (XState) | Implicit/Complex state | Redux Slices | Explicit XState machines / Typed Reducers |
+| 2.18 | Machine-Readable API Contract (OpenAPI/GraphQL) | Missing | Outdated/Partial | Current schema.json / openapi.yaml |
 
 **How to check:**
 - Analyze import/require statements for circular dependencies
 - Check directory structure for separation of concerns
+- Check for `features/`, `entities/`, `widgets/` directories (FSD)
+- Check for `xstate` dependency or explicit state machine patterns
+- Check for `openapi.yaml`, `swagger.json`, `schema.graphql` or similar
 - Count files per logical module (30-50 fits in AI context window)
 - Look for event bus / pub-sub patterns for inter-module communication
 - Look for architecture linters in package.json (dependency-cruiser, eslint-plugin-boundaries)
@@ -120,12 +131,32 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 | 3.10 | Test documentation | None | Some | Clear test purpose |
 | 3.11 | CI test integration | None | Basic | Full pipeline |
 | 3.12 | Test data management | Hardcoded | Partial | Factories/builders |
+| 3.13 | Stable UI Selectors (data-testid) | Brittle (CSS/XPath) | Mixed | Consistent `data-testid` or `getByRole` |
+| 3.14 | Page Object Model (POM) structure | Tests mixed with selectors | Partial POM | Clean separation (pages/ vs tests/) |
+| 3.15 | Automated A11y Checks (axe/pa11y) | None | Manual only | Automated in CI/Test suite |
+| 3.16 | Visual Regression Tests | None | Basic | Automated snapshots (Chromatic/Playwright) |
+| 3.17 | No hardcoded delays (sleep) | Common `sleep`/`wait` | Some waits | Auto-waiting / explicit conditions only |
+| 3.18 | Test independence | Tests depend on order | Some shared state | Fully isolated, parallelizable |
+| 3.19 | Test artifacts on failure | None | Manual capture | Auto screenshots/video/trace on fail |
+| 3.20 | Flaky test management | Ignored/masked | Retry-only | Root cause fix policy |
+| 3.21 | Centralized TestIds constants | Scattered strings | Partial | `TestIds.feature.component.element` pattern |
+| 3.22 | Test case IDs in test names | None | Some tests | `it('MM-T642 Description', ...)` pattern |
+| 3.23 | Screenplay pattern (alternative to POM) | N/A | Basic POM | Screenplay with actors/tasks/questions |
 
 **How to check:**
 - Glob for test files: `**/*.test.*`, `**/*.spec.*`, `**/test/**`, `**/__tests__/**`
 - Check for coverage config/reports
-- Sample test files for naming conventions
+- Sample test files for naming conventions and selector usage (`data-testid`, `getByRole`)
+- Check for `pages/` or `po/` directories within test folders
 - Look for CI config (`.github/workflows/`, `.gitlab-ci.yml`, etc.)
+- Check for a11y libraries (`axe-core`, `eslint-plugin-jsx-a11y`, `pa11y`)
+- Check for visual testing tools (`chromatic`, `percy`, `playwright` snapshots)
+- Grep for `sleep`, `wait`, `setTimeout` in test files (anti-pattern)
+- Check playwright.config.ts for `screenshot: 'only-on-failure'`, `video`, `trace`
+- Look for centralized test ID constants (`TestIds`, `testIds`, `selectors`)
+- Check for retry config vs documented flaky test policy
+- Grep test files for test case ID patterns (e.g., `MM-T\d+`, `TC-\d+`)
+- Check for Screenplay pattern: actors/, tasks/, questions/ directories
 
 ### Aspect 4: Type Safety (Weight: 12%)
 
@@ -170,14 +201,29 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 | 5.15 | Quick reference section | Missing | Basic | Complete cheatsheet |
 | 5.16 | Instruction count optimized | >300 rules | 200-300 rules | ~150-200 rules (optimal) |
 | 5.17 | ASK FIRST rules defined | Missing | Few | Clear boundaries for human approval |
+| 5.18 | Cursor Rules defined (.cursor/rules) | Missing | Basic | Comprehensive rules for Cursor agent |
+| 5.19 | Windsurf rules (.windsurf/rules) | Missing | Basic | Comprehensive Windsurf agent rules |
+| 5.20 | Cline rules (.clinerules) | Missing | Basic | Comprehensive Cline agent rules |
+| 5.21 | Multi-agent symlinks | Separate files | Partial | AGENTS.md + symlinks for all agents |
+| 5.22 | Copilot instructions (.github/copilot-instructions.md) | Missing | Basic | Comprehensive with path filters |
+| 5.23 | Custom commands directories | None | Basic | .cursor/commands/ with reusable workflows |
+| 5.24 | Aider conventions (.aider.conf.yml) | Missing | Basic | Comprehensive Aider configuration |
+| 5.25 | Path-scoped instructions (.github/instructions/) | None | Some files | Domain-specific .instructions.md (ui, e2e, api) |
 
 **How to check:**
-- Check for CLAUDE.md or AGENTS.md at root
-- Check for .cursorrules, .github/copilot-instructions.md as alternatives
+- Check for CLAUDE.md or AGENTS.md at root (Standardized Agent Instructions)
+- Check for .cursor/rules/*.mdc or .cursorrules
+- Check for .github/copilot-instructions.md
+- Check for .windsurf/rules/*.md (Windsurf agent)
+- Check for .clinerules (Cline agent)
+- Check for symlinks: `ls -la CLAUDE.md AGENTS.md` (should point to same source)
 - Count total instruction lines (~150-200 optimal; >300 causes degraded following)
 - Look for ASK FIRST / human approval boundaries (deploy, delete, API changes)
 - Read and evaluate each section's quality
 - Look for actionable, specific instructions vs vague guidelines
+- Check for .cursor/commands/ directory with reusable AI workflows
+- Check for .aider.conf.yml or .aiderignore (Aider configuration)
+- Check for .github/instructions/*.instructions.md (path-scoped Copilot rules)
 
 ### Aspect 6: File Structure (Weight: 10%)
 
@@ -194,6 +240,8 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 | 6.9 | Asset organization | Mixed with code | Partial | Dedicated assets/ |
 | 6.10 | Monorepo structure (if applicable) | Unclear boundaries | Basic workspaces | Full tooling (Nx/Turborepo) + graph |
 | 6.11 | Nested instruction files (monorepo) | Root only | Some packages | AGENTS.md per package (router pattern) |
+| 6.12 | Kebab-case folder naming | Inconsistent | Mostly | All folders use kebab-case |
+| 6.13 | Import aliases configured | Relative paths only | Partial | `@/` aliases for clean imports |
 
 **How to check:**
 - Count lines in source files (sample 20+ files)
@@ -202,6 +250,8 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 - Analyze naming patterns
 - For monorepos: check for Nx, Turborepo, Bazel; `nx graph` availability
 - Check for nested AGENTS.md/CLAUDE.md in packages/ or apps/
+- Verify folder naming uses kebab-case (e.g., `user-profile/` not `UserProfile/`)
+- Check tsconfig.json or vite.config for path aliases (`@/*`, `~/`)
 
 ### Aspect 7: Context Optimization (Weight: 11%)
 
@@ -220,14 +270,28 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 | 7.11 | Context-efficient error messages | Generic | Basic | Descriptive with context |
 | 7.12 | Hierarchical context (nested instructions) | Root only | Some nested | Full router pattern |
 | 7.13 | Versioned prompts directory (prompts/) | Missing | Some prompts | Organized prompts/ with templates |
+| 7.14 | Design Tokens (JSON format) | Hardcoded values | CSS Variables | JSON tokens (W3C standard) |
+| 7.15 | Semantic HTML Usage | Div soup | Mixed | Semantic tags (nav, article, section) |
+| 7.16 | MCP integration (Figma/Storybook) | None | Manual sync | MCP servers for design-to-code |
+| 7.17 | Progress files for session continuity | None | Ad-hoc notes | Structured progress.md / session logs |
+| 7.18 | Three-tier token hierarchy | Flat tokens | Semantic only | Primitive → Semantic → Component |
+| 7.19 | Atomic Design structure (UI) | No structure | Partial | Atoms → Molecules → Organisms → Templates |
+| 7.20 | Screaming Architecture naming | Framework-centric | Mixed | Domain-centric directory names |
 
 **How to check:**
 - Check for llms.txt, llms-full.txt at root
 - Check for nested AGENTS.md/CLAUDE.md in subdirectories
 - Check for prompts/ directory with versioned system prompts
+- Check for `tokens.json` or similar in `design-system/` or `styles/`
+- Sample UI files for semantic HTML tags vs `div` usage
 - Sample function lengths
 - Review naming conventions
 - Check for formatting tools (.prettierrc, .editorconfig)
+- Check for MCP config files (mcp.json, storybook-mcp, figma-mcp references)
+- Look for progress.md, session-log.md, or similar continuity files
+- Check token structure: primitives/ → semantic/ → components/
+- Check for atoms/, molecules/, organisms/ directories (Atomic Design)
+- Verify directory names reflect domain concepts, not frameworks
 
 ### Aspect 8: Security (Weight: 10%)
 
@@ -244,9 +308,10 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 | 8.9 | Dependency security | Outdated/vulnerable | Some updates | Regular updates |
 | 8.10 | Security documentation | None | Basic | Threat model |
 | 8.11 | AI commit attribution | None | Manual tagging | Automated Co-authored-by metadata |
+| 8.12 | .cursorignore exists | Missing | Basic | Comprehensive exclusions for Cursor |
 
 **How to check:**
-- Check for .aiignore, .gitignore
+- Check for .aiignore, .gitignore, .cursorignore
 - Grep for common secret patterns: `API_KEY=`, `password=`, `secret=`, AWS keys
 - Check for .env.example vs .env in repo
 - Look for security-focused NEVER rules in CLAUDE.md
@@ -262,10 +327,17 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 Aspect Score = (Sum of criterion scores / Max possible) * 100
 ```
 
-Example for Documentation (16 criteria), Architecture (15 criteria), Agent Instructions (17 criteria), etc.:
-- Documentation: If scores sum to 112 out of 160: (112/160) * 100 = 70/100
-- Architecture (15 criteria): max 150 points
-- Agent Instructions (17 criteria): max 170 points
+Criteria counts per aspect:
+- Documentation (19 criteria): max 190 points
+- Architecture (18 criteria): max 180 points
+- Testing (23 criteria): max 230 points
+- Type Safety (10 criteria): max 100 points
+- Agent Instructions (25 criteria): max 250 points
+- File Structure (13 criteria): max 130 points
+- Context Optimization (20 criteria): max 200 points
+- Security (12 criteria): max 120 points
+
+Example: Documentation scores sum to 133 out of 190: (133/190) * 100 = 70/100
 
 ### Overall Score Calculation (Weighted)
 
