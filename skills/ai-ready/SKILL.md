@@ -1,6 +1,6 @@
 ---
 name: ai-ready
-description: Analyze any repository for AI agent development efficiency. Scores 8 key aspects (documentation, architecture, testing, type safety, agent instructions, file structure, context optimization, security) from 1-100 with ASCII progress bars. Evaluates 140 sub-criteria including E2E anti-flake practices, multi-agent configs (Cursor/Windsurf/Cline/Aider), MCP integration, Atomic Design patterns, Screenplay testing, and kebab-case conventions. Highlights problems by severity (Critical/Warning/Info), provides overall A-F grade, surveys user on issues to fix, then enters plan mode to create a phased refactoring roadmap. Use when evaluating repository readiness for AI-assisted development or preparing a codebase for Claude Code.
+description: Analyze any repository for AI agent development efficiency. Scores 8 key aspects (documentation, architecture, testing, type safety, agent instructions, file structure, context optimization, security) from 1-100 with ASCII progress bars. Evaluates sub-criteria including E2E anti-flake practices and kebab-case conventions. Highlights problems by severity (Critical/Warning/Info), provides overall A-F grade, surveys user on issues to fix, then enters plan mode to create a phased refactoring roadmap. Use when evaluating repository readiness for AI-assisted development or preparing a codebase for Claude Code.
 user-invocable: true
 argument-hint: [path-to-repo]
 ---
@@ -73,12 +73,12 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 
 **How to check:**
 - Use Glob to find documentation files: `**/*.md`, `**/docs/**`
-- Check `package.json` for `scripts` section
 - Check for `specs/` directory or `**/*.feature` files (Gherkin)
 - Check for `.storybook` directory and `**/*.stories.*` files
 - Read README.md, ARCHITECTURE.md, CONTRIBUTING.md
 - Sample source files for docstrings/JSDoc coverage
 - Check for `docs/adr/` or `adr/` directory
+- Check `package.json` for `scripts` section
 
 ### Aspect 2: Architecture (Weight: 15%)
 
@@ -106,14 +106,14 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 **How to check:**
 - Analyze import/require statements for circular dependencies
 - Check directory structure for separation of concerns
-- Check for `features/`, `entities/`, `widgets/` directories (FSD)
 - Check for `xstate` dependency or explicit state machine patterns
 - Check for `openapi.yaml`, `swagger.json`, `schema.graphql` or similar
-- Count files per logical module (30-50 fits in AI context window)
-- Look for event bus / pub-sub patterns for inter-module communication
 - Look for architecture linters in package.json (dependency-cruiser, eslint-plugin-boundaries)
 - Look for god files (>1000 LOC with many responsibilities)
 - Review configuration handling
+- Check for `features/`, `entities/`, `widgets/` directories (FSD/vertical slices)
+- Count files per logical module (30-50 fits in AI context window)
+- Look for event bus / pub-sub patterns for inter-module communication
 
 ### Aspect 3: Testing (Weight: 12%)
 
@@ -146,17 +146,16 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 **How to check:**
 - Glob for test files: `**/*.test.*`, `**/*.spec.*`, `**/test/**`, `**/__tests__/**`
 - Check for coverage config/reports
-- Sample test files for naming conventions and selector usage (`data-testid`, `getByRole`)
-- Check for `pages/` or `po/` directories within test folders
 - Look for CI config (`.github/workflows/`, `.gitlab-ci.yml`, etc.)
 - Check for a11y libraries (`axe-core`, `eslint-plugin-jsx-a11y`, `pa11y`)
 - Check for visual testing tools (`chromatic`, `percy`, `playwright` snapshots)
 - Grep for `sleep`, `wait`, `setTimeout` in test files (anti-pattern)
 - Check playwright.config.ts for `screenshot: 'only-on-failure'`, `video`, `trace`
-- Look for centralized test ID constants (`TestIds`, `testIds`, `selectors`)
 - Check for retry config vs documented flaky test policy
 - Grep test files for test case ID patterns (e.g., `MM-T\d+`, `TC-\d+`)
-- Check for Screenplay pattern: actors/, tasks/, questions/ directories
+- Sample test files for naming conventions and selector usage (`data-testid`, `getByRole`)
+- Check for `pages/` or `po/` directories within test folders
+- Look for Screenplay pattern: actors/, tasks/, questions/ directories
 
 ### Aspect 4: Type Safety (Weight: 12%)
 
@@ -212,15 +211,15 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 
 **How to check:**
 - Check for CLAUDE.md or AGENTS.md at root (Standardized Agent Instructions)
+- Count total instruction lines (~150-200 optimal; >300 causes degraded following)
+- Look for ASK FIRST / human approval boundaries (deploy, delete, API changes)
+- Read and evaluate each section's quality
+- Look for actionable, specific instructions vs vague guidelines
 - Check for .cursor/rules/*.mdc or .cursorrules
 - Check for .github/copilot-instructions.md
 - Check for .windsurf/rules/*.md (Windsurf agent)
 - Check for .clinerules (Cline agent)
 - Check for symlinks: `ls -la CLAUDE.md AGENTS.md` (should point to same source)
-- Count total instruction lines (~150-200 optimal; >300 causes degraded following)
-- Look for ASK FIRST / human approval boundaries (deploy, delete, API changes)
-- Read and evaluate each section's quality
-- Look for actionable, specific instructions vs vague guidelines
 - Check for .cursor/commands/ directory with reusable AI workflows
 - Check for .aider.conf.yml or .aiderignore (Aider configuration)
 - Check for .github/instructions/*.instructions.md (path-scoped Copilot rules)
@@ -244,14 +243,14 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 | 6.13 | Import aliases configured | Relative paths only | Partial | `@/` aliases for clean imports |
 
 **How to check:**
+- Analyze naming patterns
+- For monorepos: check for Nx, Turborepo, Bazel; `nx graph` availability
+- Verify folder naming uses kebab-case (e.g., `user-profile/` not `UserProfile/`)
+- Check tsconfig.json or vite.config for path aliases (`@/*`, `~/`)
 - Count lines in source files (sample 20+ files)
 - Measure directory depth
 - Count files per directory
-- Analyze naming patterns
-- For monorepos: check for Nx, Turborepo, Bazel; `nx graph` availability
 - Check for nested AGENTS.md/CLAUDE.md in packages/ or apps/
-- Verify folder naming uses kebab-case (e.g., `user-profile/` not `UserProfile/`)
-- Check tsconfig.json or vite.config for path aliases (`@/*`, `~/`)
 
 ### Aspect 7: Context Optimization (Weight: 11%)
 
@@ -279,19 +278,22 @@ For each aspect, evaluate every sub-criterion on a 0-10 scale.
 | 7.20 | Screaming Architecture naming | Framework-centric | Mixed | Domain-centric directory names |
 
 **How to check:**
-- Check for llms.txt, llms-full.txt at root
-- Check for nested AGENTS.md/CLAUDE.md in subdirectories
-- Check for prompts/ directory with versioned system prompts
-- Check for `tokens.json` or similar in `design-system/` or `styles/`
 - Sample UI files for semantic HTML tags vs `div` usage
-- Sample function lengths
 - Review naming conventions
 - Check for formatting tools (.prettierrc, .editorconfig)
-- Check for MCP config files (mcp.json, storybook-mcp, figma-mcp references)
+- Look for magic numbers and dead code
+- Review error messages for useful context
+- Review import organization for grouping/sorting
+- Check for llms.txt, llms-full.txt at root
+- Check for prompts/ directory with versioned system prompts
 - Look for progress.md, session-log.md, or similar continuity files
 - Check token structure: primitives/ → semantic/ → components/
-- Check for atoms/, molecules/, organisms/ directories (Atomic Design)
-- Verify directory names reflect domain concepts, not frameworks
+- Look for atoms/, molecules/, organisms/ directories (Atomic Design)
+- Check for nested AGENTS.md/CLAUDE.md in subdirectories (hierarchical context)
+- Check for `tokens.json` or similar in `design-system/` or `styles/`
+- Check for MCP config files (mcp.json, storybook-mcp, figma-mcp references)
+- Review directory naming for domain-centric (Screaming Architecture)
+- Sample functions/files for chunking-friendly size and single-export pattern
 
 ### Aspect 8: Security (Weight: 10%)
 
@@ -413,7 +415,6 @@ Group problems by severity, then by aspect. List all identified issues.
 **CRITICAL (Must fix - blocks AI effectiveness):**
 - Missing Agent Instructions (CLAUDE.md/AGENTS.md)
 - Missing README.md
-- Files over 1000 LOC
 - Hardcoded secrets found
 - No .gitignore
 - Circular dependencies
@@ -421,25 +422,16 @@ Group problems by severity, then by aspect. List all identified issues.
 
 **WARNING (Should fix - impacts AI efficiency):**
 - Incomplete Agent Instructions sections
-- Files 500-1000 LOC
 - Missing ARCHITECTURE.md
 - Test coverage <50%
 - No type safety
-- Deep nesting (>5 levels)
-- >20 files per directory
 
 **INFO (Nice to fix - optimization opportunities):**
-- Files 400-500 LOC
-- Missing llms.txt
 - Minor documentation gaps
-- No llms-full.txt
 - Missing CONTRIBUTING.md
 - Could add more why-comments
 - Missing executable specs (specs/)
 - No architecture enforcement
-- No hierarchical context (router pattern)
-- Missing prompts/ directory
-- No event-driven decoupling
 - No AI commit attribution
 - Missing ASK FIRST boundaries
 - >200 instructions in CLAUDE.md (consider trimming)
@@ -456,10 +448,7 @@ Group problems by severity, then by aspect. List all identified issues.
 [C1] Agent Instructions: CLAUDE.md/AGENTS.md is missing
      Impact: AI agents have no project-specific guidance
 
-[C2] File Structure: src/utils/helpers.ts has 1,247 lines
-     Impact: Too large for AI context window, hard to understand
-
-[C3] Security: Potential API key found in src/config.ts:23
+[C2] Security: Potential API key found in src/config.ts:23
      Impact: Security risk, should not be in version control
 
 🟡 WARNING ({count} issues)
@@ -470,15 +459,12 @@ Group problems by severity, then by aspect. List all identified issues.
 [W2] Testing: Test coverage is 34%
      Impact: AI-generated code may introduce regressions
 
-[W3] File Structure: src/components/ has 28 files
-     Impact: Hard to navigate, consider subdirectories
+[W3] Type Safety: Strict typing is disabled
+     Impact: Weaker guarantees and higher regression risk
 
 🔵 INFO ({count} issues)
 ──────────────────────────────────────────────────────────────────────
-[I1] Context Optimization: llms.txt is missing
-     Impact: No optimized entry point for AI tools
-
-[I2] Documentation: CONTRIBUTING.md is missing
+[I1] Documentation: CONTRIBUTING.md is missing
      Impact: No contribution guidelines for AI to follow
 ```
 
@@ -527,15 +513,14 @@ Warning issues impact efficiency but aren't blocking.
 
 [W1] Create ARCHITECTURE.md? (y/N)
 [W2] Improve test coverage? (y/N)
-[W3] Reorganize src/components/? (y/N)
+[W3] Enable strict typing? (y/N)
 ```
 
 **Info Issues (Default: n):**
 ```
 Info issues are optimization opportunities.
 
-[I1] Create llms.txt? (y/N)
-[I2] Create CONTRIBUTING.md? (y/N)
+[I1] Create CONTRIBUTING.md? (y/N)
 ```
 
 ### Implementation
@@ -554,9 +539,9 @@ Then, based on effort level, present filtered issues:
 ```
 
 **Issue-to-Phase Mapping:**
-- **Phase 1 (Quick Wins):** Create files (CLAUDE.md, llms.txt, .aiignore), add .gitignore entries, remove hardcoded secrets
-- **Phase 2 (Foundation):** Split files, create ARCHITECTURE.md, reorganize directories, improve types
-- **Phase 3 (Advanced):** Increase coverage, add ADRs, implement event bus, add branded types
+- **Phase 1 (Quick Wins):** Create files (CLAUDE.md, .aiignore), add .gitignore entries, remove hardcoded secrets
+- **Phase 2 (Foundation):** Create ARCHITECTURE.md, reorganize directories, improve types
+- **Phase 3 (Advanced):** Increase coverage, add ADRs
 
 ---
 
@@ -580,7 +565,6 @@ In plan mode, create a roadmap with three phases:
 
 Tasks that can be done quickly with high impact:
 - Create CLAUDE.md from template
-- Create llms.txt
 - Add .aiignore
 - Fix obvious security issues
 - Add missing .gitignore entries
@@ -588,7 +572,6 @@ Tasks that can be done quickly with high impact:
 ### Phase 2: Foundation (Structural Improvements)
 
 Tasks requiring more effort:
-- Split large files (>500 LOC)
 - Create ARCHITECTURE.md
 - Reorganize cluttered directories
 - Add type safety improvements
@@ -617,19 +600,23 @@ Estimated items: {N}
 - [ ] Add project-specific commands
 - [ ] Document key abstractions
 
-### 1.2 Create llms.txt
-- [ ] Generate index
-- [ ] Include key entry points
-- [ ] Add navigation hints
+### 1.2 Add .aiignore
+- [ ] Add common exclusions
+- [ ] Include secrets/config patterns
 
 ...
 
 ## Phase 2: Foundation
 Estimated items: {N}
 
-### 2.1 Split large files
-- [ ] src/utils/helpers.ts → multiple focused modules
-- [ ] src/api/handlers.ts → route-specific handlers
+### 2.1 Create ARCHITECTURE.md
+- [ ] Outline system context
+- [ ] Document key components
+- [ ] Note dependencies and boundaries
+
+### 2.2 Strengthen type safety
+- [ ] Enable strict typing
+- [ ] Address remaining implicit or `any` types
 
 ...
 
@@ -910,65 +897,6 @@ For selected missing files, generate from these templates:
 | Hosting | {host} | {why} |
 ```
 
-### llms.txt Template
-
-```markdown
-# {Project Name}
-
-> {One-line description of what this project does}
-
-## Quick Start
-
-{Minimal steps to get the project running}
-
-## Documentation Index
-
-- [README](./README.md) - Project overview and setup
-- [ARCHITECTURE](./ARCHITECTURE.md) - System design and structure
-- [CLAUDE](./CLAUDE.md) - AI assistant guidelines
-- [CONTRIBUTING](./CONTRIBUTING.md) - Contribution guidelines
-
-## Key Entry Points
-
-- `{main-file}` - Application entry point
-- `{config-file}` - Configuration
-- `{routes-file}` - API routes (if applicable)
-
-## Directory Guide
-
-| Directory | Purpose |
-|-----------|---------|
-| `src/` | Source code |
-| `tests/` | Test files |
-| `docs/` | Documentation |
-| `config/` | Configuration |
-
-## Core Concepts
-
-1. **{Concept 1}:** {Brief explanation}
-2. **{Concept 2}:** {Brief explanation}
-3. **{Concept 3}:** {Brief explanation}
-
-## Common Tasks
-
-### {Task 1}
-```bash
-{command}
-```
-
-### {Task 2}
-```bash
-{command}
-```
-
-## Links
-
-- [Documentation]({docs-url})
-- [API Reference]({api-url})
-- [Examples]({examples-url})
-```
-
----
 
 ## Step 10: Save Report
 
@@ -1091,14 +1019,14 @@ For common issues, provide inline quick fixes:
 [C1] Missing CLAUDE.md
      → Run: I can generate a customized CLAUDE.md template now
 
-[W1] Files over 500 LOC
-     → src/utils/helpers.ts: Consider splitting into:
-       - stringHelpers.ts (lines 1-150)
-       - dateHelpers.ts (lines 151-300)
-       - validationHelpers.ts (lines 301-450)
+[W1] Missing ARCHITECTURE.md
+     → Run: I can draft an initial ARCHITECTURE.md outline from current structure
 
-[I1] Missing llms.txt
-     → Run: I can generate llms.txt from your current structure
+[W2] Type safety disabled
+     → Run: I can enable strict typing and highlight remaining implicit `any`
+
+[I1] Missing CONTRIBUTING.md
+     → Run: I can generate a CONTRIBUTING.md with your current workflows
 ```
 
 ---
